@@ -2,7 +2,7 @@
 
 A Windows extension for Python (2.x) to display simple message popups.
 This is a personal project and still Work In Progress. Based on extension example project and compiled with VS2008.
-Only tested with Python 2.7 on 64bit Windows. 
+Only tested with Python 2.7 on 64bit Windows. You can use the provided popup.pyd on these systems.
 
 ## Features
 * Message queue
@@ -30,7 +30,7 @@ Only tested with Python 2.7 on 64bit Windows.
 * POSITION_BOTTOM_LEFT
 * POSITION_BOTTOM_RIGHT
 * POSITION_CUSTOM, needs X and Y values.
-
+           
 - OPTION_OPACITY, accepts 0-100, default 100.
 - OPTION_USE_WORKAREA, bool, automatically avoid taskbar if true, default true.
 - OPTION_TEXT_COLOR, tuple "(R, G, B)", values 0-255.
