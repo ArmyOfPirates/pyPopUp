@@ -24,13 +24,15 @@ Only tested with Python 2.7 on 64bit Windows. You can use the provided popup.pyd
 * clear() Removes all popups from queue and screen.
 
 ## Constants (for options and position)
+for setPosition:
 * POSITION_CENTER
 * POSITION_TOP_LEFT
 * POSITION_TOP_RIGHT
 * POSITION_BOTTOM_LEFT
 * POSITION_BOTTOM_RIGHT
 * POSITION_CUSTOM, needs X and Y values.
-           
+
+for setOption
 - OPTION_OPACITY, accepts 0-100, default 100.
 - OPTION_USE_WORKAREA, bool, automatically avoid taskbar if true, default true.
 - OPTION_TEXT_COLOR, tuple "(R, G, B)", values 0-255.
