@@ -16,18 +16,18 @@ Only tested with Python 2.7 on 64bit Windows. You can use the provided popup.pyd
 * Fancy round corners
 
 ## Functions
-*   setOption(name, value)
-    Use one of the OPTION_* constants for the name. The type of value depends on the constant.
-*   setFont(name, size)
-    Set font to the specified name(unicode!) and size.
-*   setPosition(name, x, y)
-    Use one of the POSITION_* constants. x and y are only required for POSITION_CUSTOM.
-*   show(text, [time])
-    Show a popup (optional for _time_ milliseconds). Text must be in unicode.
-*   wait()
-    Halts until popup queue is empty and all popups have been shown.
-*   clear()
-    Removes all popups from queue and screen.
+* setOption(name, value)  
+  Use one of the OPTION_* constants for the name. The type of value depends on the constant.
+* setFont(name, size)  
+  Set font to the specified name(unicode!) and size.
+* setPosition(name, x, y)  
+  Use one of the POSITION_* constants. x and y are only required for POSITION_CUSTOM.
+* show(text, [time])  
+  Show a popup (optional for _time_ milliseconds). Text must be in unicode.
+* wait()  
+  Halts until popup queue is empty and all popups have been shown.
+* clear()  
+  Removes all popups from queue and screen.
 
 ## Constants (for options and position)
 for setPosition:
@@ -50,7 +50,6 @@ for setOption:
 ## Demo
 ```python
 import popup
-import time
 
 popup.setFont(u"Calibri", 40)
 popup.setOption(popup.OPTION_TEXT_COLOR, (255,0,255))
