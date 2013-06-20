@@ -16,12 +16,18 @@ Only tested with Python 2.7 on 64bit Windows. You can use the provided popup.pyd
 * Fancy round corners
 
 ## Functions
-* setOption(name, value) Use one of the OPTION_* constants for the name. The type of value depends on the constant.
-* setFont(name, size) Set font to the specified name(unicode!) and size.
-* setPosition(name, x, y) Use one of the POSITION_* constants. x and y are only required for POSITION_CUSTOM.
-* show(text, [time]) Show a popup (optional for time milliseconds). Text must be in unicode.
-* wait() Halts until popup queue is empty and all popups have been shown.
-* clear() Removes all popups from queue and screen.
+* setOption(name, value)
+  Use one of the OPTION_* constants for the name. The type of value depends on the constant.
+* setFont(name, size)
+  Set font to the specified name(unicode!) and size.
+* setPosition(name, x, y)
+  Use one of the POSITION_* constants. x and y are only required for POSITION_CUSTOM.
+* show(text, [time])
+  Show a popup (optional for _time_ milliseconds). Text must be in unicode.
+* wait()
+  Halts until popup queue is empty and all popups have been shown.
+* clear()
+  Removes all popups from queue and screen.
 
 ## Constants (for options and position)
 for setPosition:
@@ -32,7 +38,7 @@ for setPosition:
 * POSITION_BOTTOM_RIGHT
 * POSITION_CUSTOM, needs X and Y values.
 
-for setOption
+for setOption:
 - OPTION_OPACITY, accepts 0-100, default 100.
 - OPTION_USE_WORKAREA, bool, automatically avoid taskbar if true, default true.
 - OPTION_TEXT_COLOR, tuple "(R, G, B)", values 0-255.
