@@ -1,7 +1,7 @@
 # pyPopUp
 
 A Windows extension for Python (2.x) to display simple message popups.
-This is a personal project and still Work In Progress.
+This is a personal project and still Work In Progress. Based on extension example project and compiled with VS2008.
 Only tested with Python 2.7 on 64bit Windows. 
 
 ## Features
@@ -10,13 +10,16 @@ Only tested with Python 2.7 on 64bit Windows.
 * Font adjustable
 * Colors adjustable
 * Timing adjustable
+* Multi monitor support (untested)
+* Fade out
 * Unicode!
+* Fancy round corners
 
 ## Functions
-* setOption(name, value) Use one of the OPTION_* constants for the name.
+* setOption(name, value) Use one of the OPTION_* constants for the name. The type of value depends on the constant.
 * setFont(name, size) Set font to the specified name(unicode!) and size.
 * setPosition(name, x, y) Use one of the POSITION_* constants. x and y are only required for POSITION_CUSTOM.
-* show(text, [time]) Show a popup (for time milliseconds). Text must be in unicode.
+* show(text, [time]) Show a popup (optional for time milliseconds). Text must be in unicode.
 * wait() Halts until popup queue is empty and all popups have been shown.
 * clear() Removes all popups from queue and screen.
 
@@ -26,15 +29,15 @@ Only tested with Python 2.7 on 64bit Windows.
 * POSITION_TOP_RIGHT
 * POSITION_BOTTOM_LEFT
 * POSITION_BOTTOM_RIGHT
-* POSITION_CUSTOM
+* POSITION_CUSTOM, needs X and Y values.
 
-* OPTION_OPACITY
-* OPTION_USE_WORKAREA
-* OPTION_TEXT_COLOR
-* OPTION_BACKGROUND_COLOR
-* OPTION_DEFAULT_TIME
-* OPTION_MARGIN
-* OPTION_FOLLOW_ACTIVE_SCREEN
+- OPTION_OPACITY, accepts 0-100, default 100.
+- OPTION_USE_WORKAREA, bool, automatically avoid taskbar if true, default true.
+- OPTION_TEXT_COLOR, tuple "(R, G, B)", values 0-255.
+- OPTION_BACKGROUND_COLOR, tuple "(R, G, B)", values 0-255.
+- OPTION_DEFAULT_TIME, integer, in milliseconds, default 2000.
+- OPTION_MARGIN, margin used in TOP/BOTTOM positions, default 2.
+- OPTION_FOLLOW_ACTIVE_SCREEN, display popup on monitor with active window, default true.
 
 ## Demo
 ```python
