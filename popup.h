@@ -17,6 +17,7 @@ EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 
 #define IDC_POPUP_TEXT 101
 
+/* constants */
 #define POSITION_CENTER			0
 #define POSITION_TOP_LEFT		1
 #define POSITION_TOP_RIGHT		2
@@ -31,11 +32,13 @@ EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 #define OPTION_DEFAULT_TIME			10
 #define OPTION_MARGIN				11
 #define OPTION_FOLLOW_ACTIVE_SCREEN	12
+#define OPTION_WAIT_WHEN_USER_IDLE	13
+#define OPTION_DO_NOT_DISTURB		14
 
 
-
+/* message queue struct */
 struct pqueue{
-	const Py_UNICODE *text;
+	LPWSTR text;
 	unsigned int time;
 };
 
@@ -47,13 +50,11 @@ COLORREF textColor;
 
 CTimer showTimer;
 CTimer fadeTimer;
+CTimer idleTimer;
+CTimer waitTimer;
 
-int opacity, default_opacity;
-int current_position = POSITION_CENTER;
-int pos_x, pos_y;
-int default_time = 2000;
-bool use_workarea = true, follow_active_screen = true, startup_done = false;
-int margin = 2;
+int opacity, default_opacity, current_position , pos_x, pos_y, default_time, margin;
+bool use_workarea, follow_active_screen, startup_done, wait_while_idle, do_not_disturb, isVistaOrHigher;
 
 std::vector <pqueue> popup_queue;
 CRITICAL_SECTION cs;
@@ -61,9 +62,13 @@ CRITICAL_SECTION cs;
 /* functions */
 static void startFade();
 static void fadeStep();
+static void checkIdle();
 static LRESULT WINAPI CustomWndProc(HWND lhWnd, UINT message, WPARAM wParam, LPARAM lParam);
+static bool popupAllowed();
+static bool IsWindowsVistaOrHigher();
+static bool isIdle();
 static void position_popup(int width, int height);
-static void show(const Py_UNICODE *text, Py_ssize_t time);
+static void show(LPWSTR text, Py_ssize_t time);
 static unsigned __stdcall boot(void* pArguments);
 static PyObject *
 popup_setOption(PyObject *self, PyObject *args);

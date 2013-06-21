@@ -1,19 +1,18 @@
 /*
-1 extra thread for the window
-2 timers: showtimer, fadetimer
-init: makes windowthread
-functions:
-	- show
-	- setOption
-	- setFont
-	- setPosition
-	- wait
+pyPopUp
+(c) 2013 ArmyOfPirates
 
+A simple popup system for python on windows.
 */
 
 #include "popup.h"
 
 static void startFade(){
+	if(wait_while_idle && isIdle())
+	{
+		idleTimer.Start(1000);
+		return;
+	}
 	opacity = default_opacity;
 	fadeTimer.Start(25);
 }
@@ -35,6 +34,27 @@ static void fadeStep(){
 	}
 }
 
+static void checkIdle(){
+	if(!isIdle())
+	{
+		idleTimer.Stop();
+		showTimer.Start(default_time); // get interval from timer?
+	}
+}
+
+static void checkAllowed(){
+	if(popupAllowed())
+	{
+		EnterCriticalSection( &cs );
+		waitTimer.Stop();
+		if(!popup_queue.empty()){
+			show(popup_queue[0].text, popup_queue[0].time);
+			popup_queue.erase(popup_queue.begin());
+		}
+		LeaveCriticalSection( &cs );
+	}
+}
+
 static LRESULT WINAPI CustomWndProc(HWND lhWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	HDC hdcStatic;
@@ -50,6 +70,55 @@ static LRESULT WINAPI CustomWndProc(HWND lhWnd, UINT message, WPARAM wParam, LPA
 		return (LRESULT)GetStockObject(NULL_BRUSH);
 	}
 	return DefWindowProc(lhWnd, message, wParam, lParam);
+}
+
+static bool popupAllowed()
+{
+    if(!do_not_disturb)
+		return true;
+	if(isVistaOrHigher)
+	{
+		QUERY_USER_NOTIFICATION_STATE quns;
+		SHQueryUserNotificationState(&quns);
+		return (quns == QUNS_ACCEPTS_NOTIFICATIONS);
+	}
+	else
+	{
+		HWND hWnd = GetForegroundWindow();
+
+		if(!hWnd)
+			return false;
+
+		if(hWnd == GetDesktopWindow() || hWnd == GetShellWindow())//if(!IsWindowVisible(hWnd) || IsIconic(hWnd) || !IsZoomed(hWnd))
+			return false;
+
+		RECT rc;
+		if(!GetWindowRect(hWnd,&rc))
+			return false;
+
+		return !(rc.right - rc.left  >= GetSystemMetrics(SM_CXSCREEN) &&  rc.bottom - rc.top >= GetSystemMetrics(SM_CYSCREEN));
+	}
+}
+
+static bool IsWindowsVistaOrHigher()
+{
+   OSVERSIONINFO osvi;
+   ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
+   osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+   GetVersionEx(&osvi);
+   return osvi.dwMajorVersion >= 6;
+}
+
+static bool isIdle()
+{
+	LASTINPUTINFO inp;
+	DWORD lastinp;
+	inp.cbSize = sizeof(inp);
+	GetLastInputInfo(&inp);
+	lastinp = GetTickCount() - inp.dwTime;
+	if(lastinp > 60000)
+		return true;
+	return false;
 }
 
 static void position_popup(int width, int height){
@@ -112,20 +181,29 @@ static void position_popup(int width, int height){
 	SetWindowPos(m_hWnd, HWND_TOPMOST, x, y, width, height, 0);
 }
 
-static void show(const Py_UNICODE *text, Py_ssize_t time){
+static void show(LPWSTR text, Py_ssize_t time){
+	if(!popupAllowed())
+	{
+		pqueue item;
+		item.text = text;
+		item.time = (unsigned int)time;
+		popup_queue.push_back(item);
+		waitTimer.Start(1000);
+		return;
+	}
 	HDC hdc;
 	HRGN hRegion;
 	HFONT hFontOld;
 	RECT box = {};
 	int pcch;
 	pcch = lstrlen(text);
-	LPWSTR lpszString1 = new WCHAR[pcch];
-	lpszString1 = (LPWSTR)text;
+	//LPWSTR lpszString1 = new WCHAR[pcch];
+	//lpszString1 = (LPWSTR)text;
 	
 	hdc = GetDC(hwndLabel);
 	hFontOld = (HFONT)SelectObject(hdc, hfFont);
 	//GetTextExtentPoint32 does not do multiline
-	DrawText(hdc, lpszString1, pcch, &box, DT_CALCRECT);
+	DrawText(hdc, text, pcch, &box, DT_CALCRECT);
 	hfFont = (HFONT)SelectObject(hdc, hFontOld);
 	
 	ReleaseDC(NULL, hdc);
@@ -135,7 +213,7 @@ static void show(const Py_UNICODE *text, Py_ssize_t time){
 	hRegion = CreateRoundRectRgn (0, 0, box.right+18, box.bottom+4, 15, 15);
 	SetWindowRgn(m_hWnd, hRegion, TRUE);
 	
-	SendMessage(hwndLabel, WM_SETTEXT, NULL, (LPARAM) lpszString1);
+	SendMessage(hwndLabel, WM_SETTEXT, NULL, (LPARAM) text);
 	
 	fadeTimer.Stop();
 	SetLayeredWindowAttributes(m_hWnd, 0, (255 * default_opacity) / 100, LWA_ALPHA);
@@ -205,6 +283,8 @@ static unsigned __stdcall boot(void* pArguments){
 	
 	showTimer.OnTimedEvent = startFade;
 	fadeTimer.OnTimedEvent = fadeStep;
+	idleTimer.OnTimedEvent = checkIdle;
+	waitTimer.OnTimedEvent = checkAllowed;
 
     MSG msg;
 	startup_done = true;
@@ -215,6 +295,8 @@ static unsigned __stdcall boot(void* pArguments){
     }
 	return 0;
 }
+
+/* Python functions */
 
 static PyObject *
 popup_setOption(PyObject *self, PyObject *args)
@@ -305,6 +387,20 @@ popup_setOption(PyObject *self, PyObject *args)
 			return NULL;
 		}
 		margin = intvalue;
+		break;
+	case OPTION_WAIT_WHEN_USER_IDLE:
+		if(!PyInt_Check(pvalue)){
+			PyErr_SetString(PyExc_ValueError, "expecting True/False/1/0");
+			return NULL;
+		}
+		wait_while_idle = (PyInt_AsSsize_t(pvalue)!=0); // C4800
+		break;
+	case OPTION_DO_NOT_DISTURB:
+		if(!PyInt_Check(pvalue)){
+			PyErr_SetString(PyExc_ValueError, "expecting True/False/1/0");
+			return NULL;
+		}
+		do_not_disturb = (PyInt_AsSsize_t(pvalue)!=0); // C4800
 		break;
 	default:
 		PyErr_SetString(PyExc_ValueError, "Unknown option");
@@ -397,14 +493,18 @@ popup_show(PyObject *self, PyObject *args)
 		return NULL;
 	}
 	text = PyUnicode_AS_UNICODE(str);
+	int pcch;
+	pcch = lstrlen(text);
+	LPWSTR lpszString1 = new WCHAR[pcch];
+	lpszString1 = (LPWSTR)text;
 	EnterCriticalSection( &cs );
-	if(showTimer.Enabled() || fadeTimer.Enabled()){
+	if(showTimer.Enabled() || fadeTimer.Enabled() || idleTimer.Enabled() || waitTimer.Enabled()){
 		pqueue item;
-		item.text = text;
+		item.text = lpszString1;
 		item.time = (unsigned int)dtime;
 		popup_queue.push_back(item);
 	} else {
-		show(text, dtime);
+		show(lpszString1, dtime);
 	}
 	LeaveCriticalSection( &cs );
 	Py_RETURN_NONE;
@@ -452,6 +552,9 @@ initpopup(void)
 	m = Py_InitModule("popup", popup_methods);
 	if(m == NULL)
 		return;
+	startup_done = false;
+	hThread = (HANDLE)_beginthreadex( NULL, 0, &boot, NULL, 0, &threadID );
+	
 	PyModule_AddIntConstant (m, "POSITION_CENTER", POSITION_CENTER);
 	PyModule_AddIntConstant (m, "POSITION_TOP_LEFT", POSITION_TOP_LEFT);
 	PyModule_AddIntConstant (m, "POSITION_TOP_RIGHT", POSITION_TOP_RIGHT);
@@ -465,7 +568,18 @@ initpopup(void)
 	PyModule_AddIntConstant (m, "OPTION_DEFAULT_TIME", OPTION_DEFAULT_TIME);
 	PyModule_AddIntConstant (m, "OPTION_MARGIN", OPTION_MARGIN);
 	PyModule_AddIntConstant (m, "OPTION_FOLLOW_ACTIVE_SCREEN", OPTION_FOLLOW_ACTIVE_SCREEN);
-	hThread = (HANDLE)_beginthreadex( NULL, 0, &boot, NULL, 0, &threadID );
+	PyModule_AddIntConstant (m, "OPTION_WAIT_WHEN_USER_IDLE", OPTION_WAIT_WHEN_USER_IDLE);
+	PyModule_AddIntConstant (m, "OPTION_DO_NOT_DISTURB", OPTION_DO_NOT_DISTURB);
+	
+	current_position = POSITION_CENTER;
+	default_time = 2000;
+	do_not_disturb = true;
+	follow_active_screen = true;
+	margin = 2;
+	use_workarea = true;
+	wait_while_idle = true;
+	isVistaOrHigher = IsWindowsVistaOrHigher();
+	
 	while(!startup_done)
 		Sleep(1);
 }

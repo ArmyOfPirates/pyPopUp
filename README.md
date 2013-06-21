@@ -13,7 +13,7 @@ Only tested with Python 2.7 on 64bit Windows. You can use the provided popup.pyd
 * Multi monitor support (untested)
 * Fade out
 * Unicode!
-* Fancy round corners
+* Fancy rounded corners
 
 ## Functions
 * setOption(name, value)  
@@ -31,7 +31,7 @@ Only tested with Python 2.7 on 64bit Windows. You can use the provided popup.pyd
 
 ## Constants (for options and position)
 for setPosition:
-* POSITION_CENTER
+* POSITION_CENTER, default
 * POSITION_TOP_LEFT
 * POSITION_TOP_RIGHT
 * POSITION_BOTTOM_LEFT
@@ -46,6 +46,8 @@ for setOption:
 - OPTION_DEFAULT_TIME, integer, in milliseconds, default 2000.
 - OPTION_MARGIN, margin used in TOP/BOTTOM positions, default 2.
 - OPTION_FOLLOW_ACTIVE_SCREEN, display popup on monitor with active window, default true.
+- OPTION_WAIT_WHEN_USER_IDLE, keep popup on screen while user is idle, default true.
+- OPTION_DO_NOT_DISTURB, prevent displaying popups when something runs fullscreen, default true.
 
 ## Demo
 ```python
