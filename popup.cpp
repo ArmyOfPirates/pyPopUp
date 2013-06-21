@@ -187,7 +187,7 @@ static void show(LPWSTR text, Py_ssize_t time){
 		pqueue item;
 		item.text = text;
 		item.time = (unsigned int)time;
-		popup_queue.push_back(item);
+		popup_queue.insert(popup_queue.begin(), item);
 		waitTimer.Start(1000);
 		return;
 	}
@@ -259,7 +259,6 @@ static unsigned __stdcall boot(void* pArguments){
 		hInstance,
 		NULL);
 	
-	default_opacity = 100;
 	SetLayeredWindowAttributes(m_hWnd, 0, (255 * default_opacity) / 100, LWA_ALPHA);
 
 	hwndLabel = CreateWindow(L"STATIC",L"",
@@ -552,6 +551,7 @@ initpopup(void)
 	m = Py_InitModule("popup", popup_methods);
 	if(m == NULL)
 		return;
+	default_opacity = 100;
 	startup_done = false;
 	hThread = (HANDLE)_beginthreadex( NULL, 0, &boot, NULL, 0, &threadID );
 	
