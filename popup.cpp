@@ -7,7 +7,8 @@ A simple popup system for python on windows.
 
 #include "popup.h"
 
-static void startFade(){
+static void startFade()
+{
 	if(wait_while_idle && isIdle())
 	{
 		idleTimer.Start(1000);
@@ -17,24 +18,27 @@ static void startFade(){
 	fadeTimer.Start(25);
 }
 
-static void fadeStep(){
+static void fadeStep()
+{
 	opacity -= 5;
-	if(opacity <= 0){
+	if(opacity <= 0)
+	{
 		EnterCriticalSection( &cs );
 		fadeTimer.Stop();
 		ShowWindow(m_hWnd, SW_HIDE);
-		if(!popup_queue.empty()){
+		if(!popup_queue.empty())
+		{
 			show(popup_queue[0].text, popup_queue[0].time);
 			popup_queue.erase(popup_queue.begin());
 		}
 		LeaveCriticalSection( &cs );
-	}
-	else{
+	} else {
 		SetLayeredWindowAttributes(m_hWnd, 0, (255 * opacity) / 100, LWA_ALPHA);
 	}
 }
 
-static void checkIdle(){
+static void checkIdle()
+{
 	if(!isIdle())
 	{
 		idleTimer.Stop();
@@ -42,12 +46,14 @@ static void checkIdle(){
 	}
 }
 
-static void checkAllowed(){
+static void checkAllowed()
+{
 	if(popupAllowed())
 	{
 		EnterCriticalSection( &cs );
 		waitTimer.Stop();
-		if(!popup_queue.empty()){
+		if(!popup_queue.empty())
+		{
 			show(popup_queue[0].text, popup_queue[0].time);
 			popup_queue.erase(popup_queue.begin());
 		}
@@ -81,9 +87,7 @@ static bool popupAllowed()
 		QUERY_USER_NOTIFICATION_STATE quns;
 		SHQueryUserNotificationState(&quns);
 		return (quns == QUNS_ACCEPTS_NOTIFICATIONS);
-	}
-	else
-	{
+	} else {
 		HWND hWnd = GetForegroundWindow();
 
 		if(!hWnd)
@@ -121,19 +125,18 @@ static bool isIdle()
 	return false;
 }
 
-static void position_popup(int width, int height){
+static void positionPopUp(int width, int height)
+{
 	int x, y;
 	HWND hwnd;
 	HMONITOR hMonitor;
 	MONITORINFO mi;
 	RECT        rc, prc;
 	
-	if(follow_active_screen){
+	if(follow_active_screen)
 		hwnd = GetForegroundWindow();
-	}
-	else{
+	else
 		hwnd = m_hWnd;
-	}
 	GetWindowRect(hwnd, &prc);
 	
 	// 
@@ -152,7 +155,8 @@ static void position_popup(int width, int height){
 	else
 		rc = mi.rcMonitor;
 		
-	switch(current_position){
+	switch(current_position)
+	{
 	case POSITION_CUSTOM:
 		x = pos_x;
 		y = pos_y;
@@ -181,7 +185,8 @@ static void position_popup(int width, int height){
 	SetWindowPos(m_hWnd, HWND_TOPMOST, x, y, width, height, 0);
 }
 
-static void show(LPWSTR text, Py_ssize_t time){
+static void show(LPWSTR text, Py_ssize_t time)
+{
 	if(!popupAllowed())
 	{
 		pqueue item;
@@ -209,7 +214,7 @@ static void show(LPWSTR text, Py_ssize_t time){
 	ReleaseDC(NULL, hdc);
 	
 	SetWindowPos(hwndLabel, 0, 0, 0, box.right, box.bottom, SWP_NOZORDER | SWP_NOMOVE);
-	position_popup(box.right+18, box.bottom+4);
+	positionPopUp(box.right+18, box.bottom+4);
 	hRegion = CreateRoundRectRgn (0, 0, box.right+18, box.bottom+4, 15, 15);
 	SetWindowRgn(m_hWnd, hRegion, TRUE);
 	
@@ -223,7 +228,8 @@ static void show(LPWSTR text, Py_ssize_t time){
 	showTimer.Start((unsigned int)time, false, true);
 }
 
-static unsigned __stdcall boot(void* pArguments){
+static unsigned __stdcall boot(void* pArguments)
+{
 	HINSTANCE hInstance = HINST_THISCOMPONENT;
 	HDC hdc;
 	HFONT hFontOld;
@@ -266,8 +272,8 @@ static unsigned __stdcall boot(void* pArguments){
 		9, 0, 0, 0,
 		m_hWnd, (HMENU)IDC_POPUP_TEXT, hInstance, NULL);
 		
-	hfFont = CreateFont(16, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY,
-            DEFAULT_PITCH, L"");
+	hfFont = CreateFont(16, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET, 
+			OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH, L"");
 	SendMessage(hwndLabel, WM_SETFONT, (WPARAM)hfFont, NULL);
 	textColor = RGB(0, 0, 0);
 		
@@ -301,46 +307,50 @@ static PyObject *
 popup_setOption(PyObject *self, PyObject *args)
 {
 	PyObject *ptype, *pvalue = NULL;
-	if(!PyArg_UnpackTuple(args, "setOption", 2, 2, &ptype, &pvalue)){
+	if(!PyArg_UnpackTuple(args, "setOption", 2, 2, &ptype, &pvalue))
 		return NULL;
-	}
 	int type = (int)PyInt_AsSsize_t(ptype);
 	int intvalue;
 	HBRUSH brush;
 	HGDIOBJ oldbrush;
 	
-	switch(type){
+	switch(type)
+	{
 	case OPTION_OPACITY:
-		if(!PyInt_Check(pvalue)){
+		if(!PyInt_Check(pvalue))
+		{
 			PyErr_SetString(PyExc_TypeError, "expecting integer");
 			return NULL;
 		}
 		intvalue = (int)PyInt_AsSsize_t(pvalue);
-		if(intvalue < 0 || intvalue > 100){
+		if(intvalue < 0 || intvalue > 100)
+		{
 			PyErr_SetString(PyExc_ValueError, "expecting integer in range 0-100");
 			return NULL;
 		}
 		default_opacity = intvalue;
 		break;
 	case OPTION_USE_WORKAREA:
-		if(!PyInt_Check(pvalue)){
+		if(!PyInt_Check(pvalue))
+		{
 			PyErr_SetString(PyExc_ValueError, "expecting True/False/1/0");
 			return NULL;
 		}
 		use_workarea = (PyInt_AsSsize_t(pvalue)!=0); // C4800
 		break;
 	case OPTION_FOLLOW_ACTIVE_SCREEN:
-		if(!PyInt_Check(pvalue)){
+		if(!PyInt_Check(pvalue))
+		{
 			PyErr_SetString(PyExc_ValueError, "expecting True/False/1/0");
 			return NULL;
 		}
 		follow_active_screen = (PyInt_AsSsize_t(pvalue)!=0); // C4800
 		break;
 	case OPTION_TEXT_COLOR:
-		if(!PyTuple_Check(pvalue)){
+		if(!PyTuple_Check(pvalue))
 			return NULL;
-		}
-		if(PyTuple_Size(pvalue) != 3){
+		if(PyTuple_Size(pvalue) != 3)
+		{
 			PyErr_SetString(PyExc_ValueError, "expecting seperate RGB values in each tuple...");
 			return NULL;
 		}
@@ -349,10 +359,10 @@ popup_setOption(PyObject *self, PyObject *args)
 		UpdateWindow(m_hWnd);
 		break;
 	case OPTION_BACKGROUND_COLOR:
-		if(!PyTuple_Check(pvalue)){
+		if(!PyTuple_Check(pvalue))
 			return NULL;
-		}
-		if(PyTuple_Size(pvalue) != 3){
+		if(PyTuple_Size(pvalue) != 3)
+		{
 			PyErr_SetString(PyExc_ValueError, "expecting seperate RGB values in each tuple...");
 			return NULL;
 		}
@@ -364,38 +374,44 @@ popup_setOption(PyObject *self, PyObject *args)
 		UpdateWindow(m_hWnd);
 		break;
 	case OPTION_DEFAULT_TIME:
-		if(!PyInt_Check(pvalue)){
+		if(!PyInt_Check(pvalue))
+		{
 			PyErr_SetString(PyExc_TypeError, "expecting integer");
 			return NULL;
 		}
 		intvalue = (int)PyInt_AsSsize_t(pvalue);
-		if(intvalue <= 0){
+		if(intvalue <= 0)
+		{
 			PyErr_SetString(PyExc_ValueError, "time must be greater than zero");
 			return NULL;
 		}
 		default_time = intvalue;
 		break;
 	case OPTION_MARGIN:
-		if(!PyInt_Check(pvalue)){
+		if(!PyInt_Check(pvalue))
+		{
 			PyErr_SetString(PyExc_TypeError, "expecting integer");
 			return NULL;
 		}
 		intvalue = (int)PyInt_AsSsize_t(pvalue);
-		if(intvalue < 0){
+		if(intvalue < 0)
+		{
 			PyErr_SetString(PyExc_ValueError, "margin must be positive or zero");
 			return NULL;
 		}
 		margin = intvalue;
 		break;
 	case OPTION_WAIT_WHEN_USER_IDLE:
-		if(!PyInt_Check(pvalue)){
+		if(!PyInt_Check(pvalue))
+		{
 			PyErr_SetString(PyExc_ValueError, "expecting True/False/1/0");
 			return NULL;
 		}
 		wait_while_idle = (PyInt_AsSsize_t(pvalue)!=0); // C4800
 		break;
 	case OPTION_DO_NOT_DISTURB:
-		if(!PyInt_Check(pvalue)){
+		if(!PyInt_Check(pvalue))
+		{
 			PyErr_SetString(PyExc_ValueError, "expecting True/False/1/0");
 			return NULL;
 		}
@@ -411,13 +427,14 @@ static PyObject *
 popup_setPosition(PyObject *self, PyObject *args)
 {
 	PyObject *ptype, *px, *py = NULL;
-	if(!PyArg_UnpackTuple(args, "setPosition", 1, 3, &ptype, &px, &py)){
+	if(!PyArg_UnpackTuple(args, "setPosition", 1, 3, &ptype, &px, &py))
 		return NULL;
-	}
 	int type = (int)PyInt_AsSsize_t(ptype);
-	switch(type){
+	switch(type)
+	{
 	case POSITION_CUSTOM:
-		if(!PyInt_Check(px) || !PyInt_Check(px)){
+		if(!PyInt_Check(px) || !PyInt_Check(px))
+		{
 			PyErr_SetString(PyExc_TypeError, "expecting two integers for X and Y");
 			return NULL;
 		}
@@ -440,19 +457,21 @@ static PyObject *
 popup_setFont(PyObject *self, PyObject *args)
 {
 	PyObject *name, *size = NULL;
-	if (!PyArg_UnpackTuple(args, "setFont", 2, 2, &name, &size)) {
+	if (!PyArg_UnpackTuple(args, "setFont", 2, 2, &name, &size))
 		return NULL;
-	}
-	if(!PyUnicode_Check(name)){
+	if(!PyUnicode_Check(name))
+	{
 		PyErr_SetString(PyExc_TypeError, "expecting an unicode string");
 		return NULL;
 	}
-	if(!PyInt_Check(size)){
+	if(!PyInt_Check(size))
+	{
 		PyErr_SetString(PyExc_TypeError, "expecting an integer");
 		return NULL;
 	}
 	unsigned int fsize = (unsigned int)PyInt_AsSsize_t(size);
-	if(fsize == 0){
+	if(fsize == 0)
+	{
 		PyErr_SetString(PyExc_ValueError, "size must be bigger than 0");
 		return NULL;
 	}
@@ -470,20 +489,22 @@ popup_show(PyObject *self, PyObject *args)
 	PyObject *str, *time = NULL;
 	const Py_UNICODE *text;
 	Py_ssize_t dtime = 0;
-	if (!PyArg_UnpackTuple(args, "show", 1, 2, &str, &time)) {
+	if (!PyArg_UnpackTuple(args, "show", 1, 2, &str, &time))
 		return NULL;
-	}
-	if(!PyUnicode_Check(str)){
+	if(!PyUnicode_Check(str))
+	{
 		PyErr_SetString(PyExc_TypeError, "expecting an unicode string");
 		return NULL;
-	}if(time == NULL){
+	}
+	if(time == NULL)
+	{
 		dtime = default_time;
 	}
-	else if(!PyInt_Check(time)){
+	else if(!PyInt_Check(time))
+	{
 		PyErr_SetString(PyExc_TypeError, "expecting an integer");
 		return NULL;
-	}
-	else{
+	} else {
 		dtime = PyInt_AsSsize_t(time);
 	}
 	
@@ -497,7 +518,8 @@ popup_show(PyObject *self, PyObject *args)
 	LPWSTR lpszString1 = new WCHAR[pcch];
 	lpszString1 = (LPWSTR)text;
 	EnterCriticalSection( &cs );
-	if(showTimer.Enabled() || fadeTimer.Enabled() || idleTimer.Enabled() || waitTimer.Enabled()){
+	if(showTimer.Enabled() || fadeTimer.Enabled() || idleTimer.Enabled() || waitTimer.Enabled())
+	{
 		pqueue item;
 		item.text = lpszString1;
 		item.time = (unsigned int)dtime;

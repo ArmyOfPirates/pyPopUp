@@ -1,3 +1,10 @@
+/*
+pyPopUp
+(c) 2013 ArmyOfPirates
+
+A simple popup system for python on windows.
+*/
+
 #include "Python.h"
 #include <windows.h>
 #include <Strsafe.h>
@@ -63,11 +70,12 @@ CRITICAL_SECTION cs;
 static void startFade();
 static void fadeStep();
 static void checkIdle();
+static void checkAllowed();
 static LRESULT WINAPI CustomWndProc(HWND lhWnd, UINT message, WPARAM wParam, LPARAM lParam);
 static bool popupAllowed();
 static bool IsWindowsVistaOrHigher();
 static bool isIdle();
-static void position_popup(int width, int height);
+static void positionPopUp(int width, int height);
 static void show(LPWSTR text, Py_ssize_t time);
 static unsigned __stdcall boot(void* pArguments);
 static PyObject *
@@ -80,5 +88,7 @@ static PyObject *
 popup_show(PyObject *self, PyObject *args);
 static PyObject *
 popup_wait(PyObject *self, PyObject *args);
+static PyObject *
+popup_clear(PyObject *self, PyObject *args);
 PyMODINIT_FUNC
 initpopup(void);

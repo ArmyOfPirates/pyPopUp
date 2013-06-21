@@ -72,3 +72,9 @@ popup.show(u"and queue!")
 popup.clear()
 print "cleared!"
 ```
+
+```
+(\__/)
+(=-.-)
+C(“)(“)
+```
