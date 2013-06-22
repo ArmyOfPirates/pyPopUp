@@ -42,7 +42,7 @@ static void checkIdle()
 	if(!isIdle())
 	{
 		idleTimer.Stop();
-		showTimer.Start(default_time); // get interval from timer?
+		showTimer.Start(last_display_interval);
 	}
 }
 
@@ -202,8 +202,6 @@ static void show(LPWSTR text, Py_ssize_t time)
 	RECT box = {};
 	int pcch;
 	pcch = lstrlen(text);
-	//LPWSTR lpszString1 = new WCHAR[pcch];
-	//lpszString1 = (LPWSTR)text;
 	
 	hdc = GetDC(hwndLabel);
 	hFontOld = (HFONT)SelectObject(hdc, hfFont);
@@ -225,6 +223,7 @@ static void show(LPWSTR text, Py_ssize_t time)
 	InvalidateRect(m_hWnd, NULL, TRUE);
 	UpdateWindow(m_hWnd);
 	ShowWindow(m_hWnd, SW_SHOW);
+	last_display_interval = (int)time;
 	showTimer.Start((unsigned int)time, false, true);
 }
 
@@ -236,18 +235,19 @@ static unsigned __stdcall boot(void* pArguments)
 	WCHAR *g_wcpAppName  = L"pyPopUp";
 	InitializeCriticalSection( &cs );
 	
-	WNDCLASSEX wc = {sizeof(WNDCLASSEX),               // cbSize
-					  0,                               // style
-					  CustomWndProc,                   // lpfnWndProc
-					  0,                               // cbClsExtra
-					  0,                               // cbWndExtra
-					  hInstance,                       // hInstance
-					  LoadIcon(NULL, IDI_APPLICATION), // hIcon
-					  LoadCursor(NULL, IDC_ARROW),     // hCursor
-					  (HBRUSH) COLOR_WINDOW,           // hbrBackground
-					  NULL,                            // lpszMenuName
-					  g_wcpAppName,                    // lpszClassName
-					  LoadIcon(NULL, IDI_APPLICATION)};// hIconSm
+	WNDCLASSEX wc = {
+		sizeof(WNDCLASSEX),              // cbSize
+		0,                               // style
+		CustomWndProc,                   // lpfnWndProc
+		0,                               // cbClsExtra
+		0,                               // cbWndExtra
+		hInstance,                       // hInstance
+		LoadIcon(NULL, IDI_APPLICATION), // hIcon
+		LoadCursor(NULL, IDC_ARROW),     // hCursor
+		(HBRUSH) COLOR_WINDOW,           // hbrBackground
+		NULL,                            // lpszMenuName
+		g_wcpAppName,                    // lpszClassName
+		LoadIcon(NULL, IDI_APPLICATION)};// hIconSm
 
 	RegisterClassEx(&wc);
 

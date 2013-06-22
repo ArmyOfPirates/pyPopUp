@@ -60,7 +60,7 @@ CTimer fadeTimer;
 CTimer idleTimer;
 CTimer waitTimer;
 
-int opacity, default_opacity, current_position , pos_x, pos_y, default_time, margin;
+int opacity, default_opacity, current_position , pos_x, pos_y, default_time, margin, last_display_interval;
 bool use_workarea, follow_active_screen, startup_done, wait_while_idle, do_not_disturb, isVistaOrHigher;
 
 std::vector <pqueue> popup_queue;
@@ -78,6 +78,7 @@ static bool isIdle();
 static void positionPopUp(int width, int height);
 static void show(LPWSTR text, Py_ssize_t time);
 static unsigned __stdcall boot(void* pArguments);
+
 static PyObject *
 popup_setOption(PyObject *self, PyObject *args);
 static PyObject *

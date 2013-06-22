@@ -1,8 +1,15 @@
 # pyPopUp
 
-A Windows extension for Python (2.x) to display simple message popups.
+A Windows extension for Python (2.x) to display simple message popups.  
 This is a personal project and still Work In Progress. Based on extension example project and compiled with VS2008.
 Only tested with Python 2.7 on 64bit Windows. You can use the provided popup.pyd on these systems.
+
+### Compilation
+copy paste de sourcefiles into the Python extension example project. Remove example.c and add popup.cpp to the project.
+Change the "/export:initexample" to "/export:initpopup" in settings (or in example.vcproj).
+
+### Installation
+Put the popup.pyd in the "Lib/site-packages" folder for system-wide use. Or put it in the same folder as your script.
 
 ## Features
 * Message queue
@@ -29,7 +36,7 @@ Only tested with Python 2.7 on 64bit Windows. You can use the provided popup.pyd
 * clear()  
   Removes all popups from queue and screen.
 
-## Constants (for options and position)
+## Constants
 for setPosition:
 * POSITION_CENTER, default
 * POSITION_TOP_LEFT
@@ -39,15 +46,15 @@ for setPosition:
 * POSITION_CUSTOM, needs X and Y values.
 
 for setOption:
-- OPTION_OPACITY, accepts 0-100, default 100.
-- OPTION_USE_WORKAREA, bool, automatically avoid taskbar if true, default true.
-- OPTION_TEXT_COLOR, tuple "(R, G, B)", values 0-255.
-- OPTION_BACKGROUND_COLOR, tuple "(R, G, B)", values 0-255.
-- OPTION_DEFAULT_TIME, integer, in milliseconds, default 2000.
-- OPTION_MARGIN, margin used in TOP/BOTTOM positions, default 2.
-- OPTION_FOLLOW_ACTIVE_SCREEN, display popup on monitor with active window, default true.
-- OPTION_WAIT_WHEN_USER_IDLE, keep popup on screen while user is idle, default true.
-- OPTION_DO_NOT_DISTURB, prevent displaying popups when something runs fullscreen, default true.
+* OPTION_OPACITY, accepts 0-100, default 100.
+* OPTION_USE_WORKAREA, bool, automatically avoid taskbar if true, default true.
+* OPTION_TEXT_COLOR, tuple "(R, G, B)", values 0-255.
+* OPTION_BACKGROUND_COLOR, tuple "(R, G, B)", values 0-255.
+* OPTION_DEFAULT_TIME, integer, in milliseconds, default 2000.
+* OPTION_MARGIN, margin used in TOP/BOTTOM positions, default 2.
+* OPTION_FOLLOW_ACTIVE_SCREEN, display popup on monitor with active window, default true.
+* OPTION_WAIT_WHEN_USER_IDLE, keep popup on screen while user is idle, default true.
+* OPTION_DO_NOT_DISTURB, prevent displaying popups when something runs fullscreen, default true.
 
 ## Demo
 ```python
@@ -71,10 +78,4 @@ popup.show(u"with positions", 3000)
 popup.show(u"and queue!")
 popup.clear()
 print "cleared!"
-```
-
-```
-(\__/)
-(=-.-)
-C(“)(“)
 ```
