@@ -65,11 +65,11 @@ public:
     {
         return InterlockedExchangeAdd( &m_mutexCount, 0 );
     }
-	
-	bool Enabled()
-	{
-		return m_hTimer != NULL;
-	}
+
+    bool Enabled()
+    {
+        return m_hTimer != NULL;
+    }
 
 private:
     HANDLE m_hTimer;
@@ -93,6 +93,6 @@ static void CALLBACK TimerProcOnce(void* param, BOOLEAN timerCalled)
     CTimer* timer = static_cast<CTimer*>(param);
     timer->SetCount( timer->GetCount()+1 );
     timer->OnTimedEvent();
-	if( timer->Enabled() )
-		timer->Stop();
+    if( timer->Enabled() )
+        timer->Stop();
 };

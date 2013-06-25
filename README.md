@@ -11,6 +11,9 @@ Change the "/export:initexample" to "/export:initpopup" in settings (or in examp
 ### Installation
 Put the popup.pyd in the "Lib/site-packages" folder for system-wide use. Or put it in the same folder as your script.
 
+### Sample image
+![Preview](https://raw.github.com/ArmyOfPirates/miniature-octo-shame/master/pyPopUp/popup.png)
+
 ## Features
 * Message queue
 * Automatic positioning with lots of options (avoid taskbar/follow active screen/etc)

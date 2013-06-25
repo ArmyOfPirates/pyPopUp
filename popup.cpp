@@ -65,13 +65,13 @@ static LRESULT WINAPI CustomWndProc(HWND lhWnd, UINT message, WPARAM wParam, LPA
 {
 	HDC hdcStatic;
 	switch (message)
-    {
-    case WM_DESTROY:
-        PostQuitMessage(0);
-        return 0;
+	{
+	 case WM_DESTROY:
+		PostQuitMessage(0);
+		return 0;
 	case WM_CTLCOLORSTATIC:
 		hdcStatic = (HDC) wParam; 
-		SetTextColor(hdcStatic, textColor);    
+		SetTextColor(hdcStatic, textColor);	 
 		SetBkMode (hdcStatic, TRANSPARENT);
 		return (LRESULT)GetStockObject(NULL_BRUSH);
 	}
@@ -80,7 +80,7 @@ static LRESULT WINAPI CustomWndProc(HWND lhWnd, UINT message, WPARAM wParam, LPA
 
 static bool popupAllowed()
 {
-    if(!do_not_disturb)
+	 if(!do_not_disturb)
 		return true;
 	if(isVistaOrHigher)
 	{
@@ -106,11 +106,11 @@ static bool popupAllowed()
 
 static bool IsWindowsVistaOrHigher()
 {
-   OSVERSIONINFO osvi;
-   ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
-   osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-   GetVersionEx(&osvi);
-   return osvi.dwMajorVersion >= 6;
+	OSVERSIONINFO osvi;
+	ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
+	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+	GetVersionEx(&osvi);
+	return osvi.dwMajorVersion >= 6;
 }
 
 static bool isIdle()
@@ -131,7 +131,7 @@ static void positionPopUp(int width, int height)
 	HWND hwnd;
 	HMONITOR hMonitor;
 	MONITORINFO mi;
-	RECT        rc, prc;
+	RECT rc, prc;
 	
 	if(follow_active_screen)
 		hwnd = GetForegroundWindow();
@@ -162,8 +162,8 @@ static void positionPopUp(int width, int height)
 		y = pos_y;
 		break;
 	case POSITION_CENTER:
-        x = rc.left + (rc.right  - rc.left - width) / 2;
-        y = rc.top  + (rc.bottom - rc.top  - height) / 2;
+		x = rc.left + (rc.right  - rc.left - width) / 2;
+		y = rc.top  + (rc.bottom - rc.top  - height) / 2;
 		break;
 	case POSITION_TOP_LEFT:
 		x = rc.left + margin;
@@ -236,18 +236,18 @@ static unsigned __stdcall boot(void* pArguments)
 	InitializeCriticalSection( &cs );
 	
 	WNDCLASSEX wc = {
-		sizeof(WNDCLASSEX),              // cbSize
-		0,                               // style
-		CustomWndProc,                   // lpfnWndProc
-		0,                               // cbClsExtra
-		0,                               // cbWndExtra
-		hInstance,                       // hInstance
-		LoadIcon(NULL, IDI_APPLICATION), // hIcon
-		LoadCursor(NULL, IDC_ARROW),     // hCursor
-		(HBRUSH) COLOR_WINDOW,           // hbrBackground
-		NULL,                            // lpszMenuName
-		g_wcpAppName,                    // lpszClassName
-		LoadIcon(NULL, IDI_APPLICATION)};// hIconSm
+		sizeof(WNDCLASSEX),					// cbSize
+		0,									// style
+		CustomWndProc,						// lpfnWndProc
+		0,									// cbClsExtra
+		0,									// cbWndExtra
+		hInstance,							// hInstance
+		LoadIcon(NULL, IDI_APPLICATION),	// hIcon
+		LoadCursor(NULL, IDC_ARROW),		// hCursor
+		(HBRUSH) COLOR_WINDOW,				// hbrBackground
+		NULL,								// lpszMenuName
+		g_wcpAppName,						// lpszClassName
+		LoadIcon(NULL, IDI_APPLICATION)};	// hIconSm
 
 	RegisterClassEx(&wc);
 
@@ -291,13 +291,13 @@ static unsigned __stdcall boot(void* pArguments)
 	idleTimer.OnTimedEvent = checkIdle;
 	waitTimer.OnTimedEvent = checkAllowed;
 
-    MSG msg;
+	 MSG msg;
 	startup_done = true;
-    while(GetMessage(&msg, m_hWnd, 0, 0))
-    {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-    }
+	 while(GetMessage(&msg, m_hWnd, 0, 0))
+	 {
+		  TranslateMessage(&msg);
+		  DispatchMessage(&msg);
+	 }
 	return 0;
 }
 
@@ -568,7 +568,7 @@ PyMODINIT_FUNC
 initpopup(void)
 {
 	HANDLE hThread;
-    unsigned threadID;
+	 unsigned threadID;
 	PyObject *m;
 	m = Py_InitModule("popup", popup_methods);
 	if(m == NULL)
